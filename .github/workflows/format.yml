@@ -1,35 +1,9 @@
-name: Python Linter Check
+name: Python Format Check
 
 on: [push, pull_request]
 
 jobs:
-  setup-env:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-
-      - name: Cache pip packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.lock
-
-  format-check:
-    needs: setup-env
+  format-and-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,10 +23,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Check formatting with isort
+      - name: Install dependencies
         run: |
-          isort . --check --diff
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.lock
+
+      - name: Check formatting with isort
+        run: isort . --check --diff
 
       - name: Check formatting with black
-        run: |
-          black --check .
+        run: black --check .
